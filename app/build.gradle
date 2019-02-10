@@ -1,9 +1,10 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 android {
   compileSdkVersion 28
-  buildToolsVersion "25.0.3"
+  buildToolsVersion '28.0.3'
 
   defaultConfig {
     applicationId "com.acme.tictactoe"
@@ -14,27 +15,43 @@ android {
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
   }
 
+  // Enable desugaring for rxbinding which contains Java 8 bytecode.
+  compileOptions {
+    sourceCompatibility 1.8
+    targetCompatibility 1.8
+  }
+
   buildTypes {
     release {
       minifyEnabled false
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
   }
-
-  dataBinding {
-    enabled = true
-  }
 }
 
 dependencies {
   implementation fileTree(dir: 'libs', include: ['*.jar'])
-  androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+  androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
     exclude group: 'com.android.support', module: 'support-annotations'
   })
 
+  // Android supports.
   implementation 'com.android.support:appcompat-v7:28.0.0'
-  testImplementation 'junit:junit:4.12'
+
+  // Kotlin.
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+  // RxJava2.
+  implementation 'io.reactivex.rxjava2:rxjava:2.2.4'
+  implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
+  implementation "io.reactivex.rxjava2:rxkotlin:2.3.0"
+
+  // RxBinding.
+  implementation "com.jakewharton.rxbinding2:rxbinding-kotlin:2.2.0"
+  implementation "com.jakewharton.rxbinding2:rxbinding-design-kotlin:2.2.0"
+
+  // Junit.
+  testImplementation 'junit:junit:4.12'
 }
 
 repositories {

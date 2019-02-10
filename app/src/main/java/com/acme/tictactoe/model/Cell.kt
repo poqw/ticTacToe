@@ -1,5 +1,5 @@
 package com.acme.tictactoe.model
 
-class Cell {
-  var value: Player? = null
-}
+data class Cell(
+    val text: String? = null
+)

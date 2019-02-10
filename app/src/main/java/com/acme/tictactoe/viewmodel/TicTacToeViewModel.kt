@@ -1,41 +1,45 @@
 package com.acme.tictactoe.viewmodel
 
-import android.databinding.ObservableArrayMap
-import android.databinding.ObservableField
+import android.support.annotation.VisibleForTesting
 import com.acme.tictactoe.model.Board
+import com.acme.tictactoe.model.Cell
+import io.reactivex.subjects.BehaviorSubject
 
-class TicTacToeViewModel : ViewModel {
+class TicTacToeViewModel : BaseViewModel() {
 
   private val model: Board = Board()
 
-  val cells = ObservableArrayMap<String, String>()
-  val winner = ObservableField<String>()
+  val cells = BehaviorSubject.create<Array<Array<String>>>()
+  val winnerName = BehaviorSubject.create<String>()
 
-  override fun onCreate() {
-    // Do nothing.
-  }
+  fun onClickedCellAt(row: Int, col: Int) {
+    model.mark(row, col)
 
-  override fun onPause() {
-    // Do nothing.
-  }
+    model.winner?.let { winner ->
+      winnerName.onNext(winner.name)
+    }
 
-  override fun onResume() {
-    // Do nothing.
-  }
-
-  override fun onDestroy() {
-    // Do nothing.
+    cells.onNext(cellsToString(model.cells))
   }
 
   fun onResetSelected() {
     model.restart()
-    winner.set(null)
-    cells.clear()
+
+    winnerName.onNext(model.winner?.name ?: "")
+
+    cells.onNext(cellsToString(model.cells))
   }
 
-  fun onClickedCellAt(row: Int, col: Int) {
-    val playerThatMoved = model.mark(row, col)
-    cells["$row$col"] = playerThatMoved.toString()
-    winner.set(if (model.winner == null) null else model.winner.toString())
+  @VisibleForTesting
+  fun cellsToString(cells: Array<Array<Cell>>): Array<Array<String>> {
+    return cells
+        .map { cellsRow ->
+          cellsRow
+              .map { cell ->
+                cell.text ?: ""
+              }
+              .toTypedArray()
+        }
+        .toTypedArray()
   }
 }

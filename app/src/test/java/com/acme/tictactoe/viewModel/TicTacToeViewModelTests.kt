@@ -1,79 +1,86 @@
 package com.acme.tictactoe.viewModel
 
+import com.acme.tictactoe.model.Cell
 import com.acme.tictactoe.viewmodel.TicTacToeViewModel
+import io.reactivex.disposables.CompositeDisposable
+import org.junit.After
+import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 
-/**
- * There are a lot more tests we can and should write but for now, just a few smoke tests.
- */
 class TicTacToeViewModelTests {
 
   private lateinit var viewModel: TicTacToeViewModel
+  private val disposable = CompositeDisposable()
 
   @Before
   fun setup() {
     viewModel = TicTacToeViewModel()
+    disposable.addAll(viewModel.cells.subscribe(), viewModel.winnerName.subscribe())
   }
 
-  private fun clickAndAssertValueAt(row: Int, col: Int, expectedValue: String) {
-    viewModel.onClickedCellAt(row, col)
-    assertEquals(expectedValue, viewModel.cells["" + row + col])
+  @After
+  fun tearDown() {
+    disposable.dispose()
   }
 
-  /**
-   * This test will simulate and verify x is the winner.
-   *
-   * X | X | X
-   * O |   |
-   * | O |
-   */
   @Test
-  fun test3inRowAcrossTopForX() {
-    clickAndAssertValueAt(0, 0, "X")
-    assertNull(viewModel.winner.get())
+  fun test_onClickedCellAt() {
+    viewModel.onClickedCellAt(0, 0)
+    assertNotNull(viewModel.cells.value)
+    assertEquals("X", viewModel.cells.value!![0][0])
 
-    clickAndAssertValueAt(1, 0, "O")
-    assertNull(viewModel.winner.get())
+    viewModel.onClickedCellAt(2, 0)
+    assertNotNull(viewModel.cells.value)
+    assertEquals("O", viewModel.cells.value!![2][0])
 
-    clickAndAssertValueAt(0, 1, "X")
-    assertNull(viewModel.winner.get())
-
-    clickAndAssertValueAt(2, 1, "O")
-    assertNull(viewModel.winner.get())
-
-    clickAndAssertValueAt(0, 2, "X")
-    assertEquals("X", viewModel.winner.get())
+    viewModel.onClickedCellAt(1, 1)
+    assertNotNull(viewModel.cells.value)
+    assertEquals("X", viewModel.cells.value!![1][1])
   }
 
-
-  /**
-   * This test will simulate and verify o is the winner.
-   *
-   * O | X | X
-   * | O |
-   * | X | O
-   */
   @Test
-  fun test3inRowDiagonalFromTopLeftToBottomForO() {
-    clickAndAssertValueAt(0, 1, "X")
-    assertNull(viewModel.winner.get())
+  fun test_onResetSelected() {
+    viewModel.onClickedCellAt(0, 0) // X
+    viewModel.onClickedCellAt(0, 1) // O
+    viewModel.onClickedCellAt(0, 2) // X
+    viewModel.onClickedCellAt(1, 2) // O
+    viewModel.onClickedCellAt(1, 0) // X
 
-    clickAndAssertValueAt(0, 0, "O")
-    assertNull(viewModel.winner.get())
+    val dirtyBoard = arrayOf(
+        arrayOf("X", "O", "X"),
+        arrayOf("X", "", "O"),
+        arrayOf("", "", "")
+    )
+    assertNotNull(viewModel.cells.value)
+    assertArrayEquals(dirtyBoard, viewModel.cells.value)
 
-    clickAndAssertValueAt(2, 1, "X")
-    assertNull(viewModel.winner.get())
+    viewModel.onResetSelected()
 
-    clickAndAssertValueAt(1, 1, "O")
-    assertNull(viewModel.winner.get())
+    val cleanBoard = arrayOf(
+        arrayOf("", "", ""),
+        arrayOf("", "", ""),
+        arrayOf("", "", "")
+    )
+    assertNotNull(viewModel.cells.value)
+    assertArrayEquals(cleanBoard, viewModel.cells.value)
+  }
 
-    clickAndAssertValueAt(0, 2, "X")
-    assertNull(viewModel.winner.get())
+  @Test
+  fun test_cellsFromModel() {
+    val cells = arrayOf(
+        arrayOf(Cell("X"), Cell("O"), Cell("X")),
+        arrayOf(Cell("X"), Cell("X"), Cell("O")),
+        arrayOf(Cell("O"), Cell("X"), Cell("O"))
+    )
 
-    clickAndAssertValueAt(2, 2, "O")
-    assertEquals("O", viewModel.winner.get())
+    val expected = arrayOf(
+        arrayOf("X", "O", "X"),
+        arrayOf("X", "X", "O"),
+        arrayOf("O", "X", "O")
+    )
+    assertArrayEquals(expected, viewModel.cellsToString(cells))
   }
 }

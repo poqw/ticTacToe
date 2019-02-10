@@ -1,14 +1,11 @@
 package com.acme.tictactoe.model
 
-import com.acme.tictactoe.model.Player.O
-import com.acme.tictactoe.model.Player.X
-
 class Board {
   private companion object {
     const val BOARD_SIZE = 3
   }
 
-  private lateinit var cells: Array<Array<Cell>>
+  lateinit var cells: Array<Array<Cell>>
   private lateinit var state: GameState
   private lateinit var currentTurn: Player
   var winner: Player? = null
@@ -39,13 +36,10 @@ class Board {
    *
    * @param row 0..2
    * @param col 0..2
-   * @return the player that moved or null if we did not move anything.
    */
-  fun mark(row: Int, col: Int): Player {
-    val playerThatMoved: Player = currentTurn
-
+  fun mark(row: Int, col: Int) {
     if (isValid(row, col)) {
-      cells[row][col].value = currentTurn
+      cells[row][col] = Cell(currentTurn.name)
 
       if (isWinningMoveByPlayer(currentTurn, row, col)) {
         state = GameState.FINISHED
@@ -56,8 +50,6 @@ class Board {
         flipCurrentTurn()
       }
     }
-
-    return playerThatMoved
   }
 
   private fun isValid(row: Int, col: Int): Boolean {
@@ -75,7 +67,7 @@ class Board {
   }
 
   private fun isCellValueAlreadySet(row: Int, col: Int): Boolean {
-    return cells[row][col].value != null
+    return cells[row][col].text != null
   }
 
   /**
@@ -86,24 +78,24 @@ class Board {
    * @return true if `player` who just played the move at the `currentRow`, `currentCol`
    * has a tic tac toe.
    */
-  private fun isWinningMoveByPlayer(player: Player?, currentRow: Int, currentCol: Int): Boolean {
-    return ((cells[currentRow][0].value == player
-        && cells[currentRow][1].value == player
-        && cells[currentRow][2].value == player) // 3-in-the-row
-        || (cells[0][currentCol].value == player
-        && cells[1][currentCol].value == player
-        && cells[2][currentCol].value == player) // 3-in-the-column
+  private fun isWinningMoveByPlayer(player: Player, currentRow: Int, currentCol: Int): Boolean {
+    return ((cells[currentRow][0] == Cell(player.name)
+        && cells[currentRow][1] == Cell(player.name)
+        && cells[currentRow][2] == Cell(player.name)) // 3-in-the-row
+        || (cells[0][currentCol] == Cell(player.name)
+        && cells[1][currentCol] == Cell(player.name)
+        && cells[2][currentCol] == Cell(player.name)) // 3-in-the-column
         || (currentRow == currentCol
-        && cells[0][0].value == player
-        && cells[1][1].value == player
-        && cells[2][2].value == player) // 3-in-the-diagonal
+        && cells[0][0] == Cell(player.name)
+        && cells[1][1] == Cell(player.name)
+        && cells[2][2] == Cell(player.name)) // 3-in-the-diagonal
         || (currentRow + currentCol == 2
-        && cells[0][2].value == player
-        && cells[1][1].value == player
-        && cells[2][0].value == player)) // 3-in-the-opposite-diagonal
+        && cells[0][2] == Cell(player.name)
+        && cells[1][1] == Cell(player.name)
+        && cells[2][0] == Cell(player.name))) // 3-in-the-opposite-diagonal
   }
 
   private fun flipCurrentTurn() {
-    currentTurn = if (currentTurn == X) O else X
+    currentTurn = if (currentTurn == Player.X) Player.O else Player.X
   }
 }
