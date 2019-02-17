@@ -34,8 +34,9 @@ class TicTacToeViewModel : ViewModel {
   }
 
   fun onClickedCellAt(row: Int, col: Int) {
-    val playerThatMoved = model.mark(row, col)
-    cells["$row$col"] = playerThatMoved.toString()
-    winner.set(if (model.winner == null) null else model.winner.toString())
+    model.mark(row, col)?.let { player ->
+      cells["$row$col"] = player.toString()
+      winner.set(if (model.winner == null) null else model.winner.toString())
+    }
   }
 }

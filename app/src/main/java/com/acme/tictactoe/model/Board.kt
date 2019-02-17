@@ -41,20 +41,21 @@ class Board {
    * @param col 0..2
    * @return the player that moved or null if we did not move anything.
    */
-  fun mark(row: Int, col: Int): Player {
+  fun mark(row: Int, col: Int): Player? {
+    if (!isValid(row, col)) {
+      return null
+    }
+
     val playerThatMoved: Player = currentTurn
+    cells[row][col].value = currentTurn
 
-    if (isValid(row, col)) {
-      cells[row][col].value = currentTurn
+    if (isWinningMoveByPlayer(currentTurn, row, col)) {
+      state = GameState.FINISHED
+      winner = currentTurn
 
-      if (isWinningMoveByPlayer(currentTurn, row, col)) {
-        state = GameState.FINISHED
-        winner = currentTurn
-
-      } else {
-        // flip the current turn and continue
-        flipCurrentTurn()
-      }
+    } else {
+      // flip the current turn and continue
+      flipCurrentTurn()
     }
 
     return playerThatMoved
