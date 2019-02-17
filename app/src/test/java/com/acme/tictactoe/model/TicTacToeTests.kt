@@ -1,5 +1,6 @@
 package com.acme.tictactoe.model
 
+import org.junit.Assert.assertArrayEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.Assert.assertEquals
@@ -18,11 +19,54 @@ class TicTacToeTests {
   }
 
   /**
+   * This test tests both invalid and valid marks.
+   *
+   * X | X | X
+   *   | O | O
+   *   |   |
+   */
+  @Test
+  fun testMark() {
+    board.mark(0, 0)  // x
+    assertEquals(Cell(Player.X.name), board.cells[0][0])
+    board.mark(1, 1)  // o
+    assertEquals(Cell(Player.O.name), board.cells[1][1])
+
+    var expected = arrayOf(
+        arrayOf(Cell(Player.X.name), Cell(), Cell()),
+        arrayOf(Cell(), Cell(Player.O.name), Cell()),
+        arrayOf(Cell(), Cell(), Cell())
+    )
+    board.mark(1, 1)  // invalid: Already set.
+    assertArrayEquals(expected, board.cells)
+
+    board.mark(2, 3)  // invalid: Out of bounds.
+    assertArrayEquals(expected, board.cells)
+
+    board.mark(0, 1)  // x
+    assertEquals(Cell(Player.X.name), board.cells[0][1])
+
+    board.mark(1, 2)  // o
+    assertEquals(Cell(Player.O.name), board.cells[1][2])
+
+    board.mark(0, 2)  // x, winner.
+    assertEquals(Cell(Player.X.name), board.cells[0][2])
+
+    expected = arrayOf(
+        arrayOf(Cell(Player.X.name), Cell(Player.X.name), Cell(Player.X.name)),
+        arrayOf(Cell(), Cell(Player.O.name), Cell(Player.O.name)),
+        arrayOf(Cell(), Cell(), Cell())
+    )
+    board.mark(1, 0)  // invalid: Game finished.
+    assertArrayEquals(expected, board.cells)
+  }
+
+  /**
    * This test will simulate and verify x is the winner.
    *
    * X | X | X
    * O |   |
-   * | O |
+   *   | O |
    */
   @Test
   fun test3inRowAcrossTopForX() {
@@ -47,8 +91,8 @@ class TicTacToeTests {
    * This test will simulate and verify o is the winner.
    *
    * O | X | X
-   * | O |
-   * | X | O
+   *   | O |
+   *   | X | O
    */
   @Test
   fun test3inRowDiagonalFromTopLeftToBottomForO() {

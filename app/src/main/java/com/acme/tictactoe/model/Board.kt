@@ -38,18 +38,21 @@ class Board {
    * @param col 0..2
    */
   fun mark(row: Int, col: Int) {
-    if (isValid(row, col)) {
-      cells[row][col] = Cell(currentTurn.name)
-
-      if (isWinningMoveByPlayer(currentTurn, row, col)) {
-        state = GameState.FINISHED
-        winner = currentTurn
-
-      } else {
-        // flip the current turn and continue
-        flipCurrentTurn()
-      }
+    if (!isValid(row, col)) {
+      return
     }
+
+    cells[row][col] = Cell(currentTurn.name)
+
+    if (isWinningMoveByPlayer(currentTurn, row, col)) {
+      state = GameState.FINISHED
+      winner = currentTurn
+
+    } else {
+      // flip the current turn and continue
+      flipCurrentTurn()
+    }
+
   }
 
   private fun isValid(row: Int, col: Int): Boolean {
